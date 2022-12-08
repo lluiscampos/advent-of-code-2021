@@ -1,14 +1,14 @@
 #include <fstream>
 #include <iostream>
+#include <list>
+#include <numeric>
 #include <sstream>
 #include <string>
 
-int main() {
-
-  unsigned int max = 0;
-
+void day1() {
   std::ifstream infile("day1.input");
 
+  std::list<unsigned int> calories;
   unsigned int current = 0;
 
   std::string line;
@@ -16,27 +16,27 @@ int main() {
     std::istringstream iss(line);
     int a;
     if (!(iss >> a)) {
-
-      std::cout << current << " " << max << std::endl;
-      if (current > max) {
-        max = current;
-      }
+      calories.push_back(current);
       current = 0;
-
     } else {
-
       current += a;
-      std::cout << "processed: " << a << std::endl;
     }
   }
+  calories.push_back(current);
 
-  std::cout << current << " " << max << std::endl;
-  if (current > max) {
-    max = current;
-  }
-  current = 0;
+  calories.sort();
+  std::cout << "part 1 solution: " << calories.back() << std::endl;
 
-  std::cout << "solution: " << max << std::endl;
+  std::list<unsigned int> calories_top3;
+  auto it = calories.begin();
+  std::advance(it, calories.size() - 3);
+  calories_top3.splice(calories_top3.begin(), calories, it, calories.end());
+  std::cout << "part 2 solution: "
+            << std::accumulate(calories_top3.begin(), calories_top3.end(), 0)
+            << std::endl;
+}
 
+int main() {
+  day1();
   return 0;
 }
