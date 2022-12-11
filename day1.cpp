@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 
+#include "days.hpp"
+
 void day1() {
   std::ifstream infile("day1.input");
 
@@ -25,18 +27,13 @@ void day1() {
   calories.push_back(current);
 
   calories.sort();
-  std::cout << "part 1 solution: " << calories.back() << std::endl;
+  std::cout << "day 1 part 1 solution: " << calories.back() << std::endl;
 
   std::list<unsigned int> calories_top3;
   auto it = calories.begin();
   std::advance(it, calories.size() - 3);
   calories_top3.splice(calories_top3.begin(), calories, it, calories.end());
-  std::cout << "part 2 solution: "
+  std::cout << "day 1 part 2 solution: "
             << std::accumulate(calories_top3.begin(), calories_top3.end(), 0)
             << std::endl;
-}
-
-int main() {
-  day1();
-  return 0;
 }
