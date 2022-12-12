@@ -1,86 +1,73 @@
 #include <fstream>
 #include <iostream>
-#include <list>
-#include <numeric>
+#include <map>
 #include <sstream>
 #include <string>
 
 #include "days.hpp"
 
-typedef enum Hand {
-  rock,
-  paper,
-  scissors,
-} Hand;
+class Hand {
+public:
+  int shape_score() { return shape_scores[mine]; }
+  int match_score(Hand &opponent) {
+    if (opponent.get_shape() == wins) {
+      return 6;
+    }
+    if (opponent.get_shape() == loses) {
+      return 0;
+    }
+    return 3;
+  }
 
-Hand char_to_hand(char c) {
+protected:
+  typedef enum HandShape {
+    rock,
+    paper,
+    scissors,
+  } HandShape;
+
+  Hand(HandShape m, HandShape w, HandShape l) : mine(m), wins(w), loses(l){};
+  HandShape get_shape() const { return mine; }
+
+private:
+  HandShape mine, wins, loses;
+  std::map<HandShape, int> shape_scores = {
+      {rock, 1}, {paper, 2}, {scissors, 3}};
+};
+
+class RockHand : public Hand {
+public:
+  RockHand() : Hand(rock, scissors, paper){};
+};
+
+class PaperHand : public Hand {
+public:
+  PaperHand() : Hand(paper, rock, scissors){};
+};
+
+class ScissorsHand : public Hand {
+public:
+  ScissorsHand() : Hand(scissors, paper, rock){};
+};
+
+Hand hand_factory(char c) {
   if (c == 'A' or c == 'X') {
-    return rock;
+    return RockHand();
   }
   if (c == 'B' or c == 'Y') {
-    return paper;
+    return PaperHand();
   }
   if (c == 'C' or c == 'Z') {
-    return scissors;
+    return ScissorsHand();
   }
   std::cout << "ERROR ERROR ERROR " << c << std::endl;
-  return rock;
-}
-
-int shape_score(Hand hand) {
-  if (hand == rock) {
-    return 1;
-  }
-  if (hand == paper) {
-    return 2;
-  }
-  if (hand == scissors) {
-    return 3;
-  }
-  std::cout << "ERROR ERROR ERROR" << std::endl;
-  return 0;
-}
-
-int match_score(Hand mine, Hand opponent) {
-  if (mine == rock) {
-    if (opponent == scissors) {
-      return 6;
-    }
-    if (opponent == paper) {
-      return 0;
-    }
-    return 3;
-  }
-  if (mine == paper) {
-    if (opponent == scissors) {
-      return 0;
-    }
-    if (opponent == rock) {
-      return 6;
-    }
-    return 3;
-  }
-  if (mine == scissors) {
-    if (opponent == rock) {
-      return 0;
-    }
-    if (opponent == paper) {
-      return 6;
-    }
-    return 3;
-  }
-
-  std::cout << "ERROR ERROR ERROR" << std::endl;
-  return 0;
+  return RockHand();
 }
 
 void day2() {
-  std::cout << "hello day 2" << std::endl;
-
   std::ifstream infile("day2.input");
 
   unsigned int total_score = 0;
-
   std::string line;
   while (std::getline(infile, line)) {
     std::istringstream iss(line);
@@ -88,10 +75,9 @@ void day2() {
     if (!(iss >> a >> b)) {
       std::cout << "done" << std::endl;
     } else {
-      Hand his_hand = char_to_hand(a);
-      Hand my_hand = char_to_hand(b);
-      int round_score = shape_score(my_hand) + match_score(my_hand, his_hand);
-      std::cout << a << " vs " << b << " = " << round_score << std::endl;
+      Hand his_hand = hand_factory(a);
+      Hand my_hand = hand_factory(b);
+      int round_score = my_hand.shape_score() + my_hand.match_score(his_hand);
       total_score += round_score;
     }
   }
