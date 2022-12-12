@@ -18,6 +18,8 @@ public:
     }
     return 3;
   }
+  Hand ideal_win() { return Hand(loses, mine, wins); }
+  Hand ideal_loss() { return Hand(wins, loses, mine); }
 
 protected:
   typedef enum HandShape {
@@ -64,10 +66,25 @@ Hand hand_factory(char c) {
   return RockHand();
 }
 
+Hand ideal_hand_factory(Hand opponent, char c) {
+  if (c == 'X') {
+    return opponent.ideal_loss();
+  }
+  if (c == 'Y') {
+    return opponent;
+  }
+  if (c == 'Z') {
+    return opponent.ideal_win();
+  }
+  std::cout << "ERROR ERROR ERROR " << c << std::endl;
+  return opponent;
+}
+
 void day2() {
   std::ifstream infile("day2.input");
 
-  unsigned int total_score = 0;
+  unsigned int total_score_p1 = 0;
+  unsigned int total_score_p2 = 0;
   std::string line;
   while (std::getline(infile, line)) {
     std::istringstream iss(line);
@@ -77,10 +94,16 @@ void day2() {
     } else {
       Hand his_hand = hand_factory(a);
       Hand my_hand = hand_factory(b);
-      int round_score = my_hand.shape_score() + my_hand.match_score(his_hand);
-      total_score += round_score;
+      int round_score_p1 =
+          my_hand.shape_score() + my_hand.match_score(his_hand);
+      total_score_p1 += round_score_p1;
+      Hand my_ideal_hand = ideal_hand_factory(his_hand, b);
+      int round_score_p2 =
+          my_ideal_hand.shape_score() + my_ideal_hand.match_score(his_hand);
+      total_score_p2 += round_score_p2;
     }
   }
 
-  std::cout << "day 2 part 1 solution: " << total_score << std::endl;
+  std::cout << "day 2 part 1 solution: " << total_score_p1 << std::endl;
+  std::cout << "day 2 part 2 solution: " << total_score_p2 << std::endl;
 }
